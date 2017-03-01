@@ -1,0 +1,3 @@
+rootProject.name = 'degalukaina'
+
+include ':app'
