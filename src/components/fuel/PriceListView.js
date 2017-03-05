@@ -19,11 +19,17 @@ class PriceListView extends Component {
     this.setState({ dataSource: this.state.dataSource.cloneWithRows(data) });
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props !== nextProps) {
+      this.setState({ dataSource: this.state.dataSource.cloneWithRows(nextProps.data) });
+    }
+  }
+
   showModal(data) {
     this.setState({
       id: data.id,
       showEditView: true,
-      text: data.price
+      text: String(data.price)
     });
   }
 
@@ -33,6 +39,12 @@ class PriceListView extends Component {
       showEditView: false,
       text: null
     });
+  }
+
+  onSave() {
+    const { text, tab, id } = this.state;
+    this.props.onSave(tab, id, text);
+    this.dismissModal();
   }
 
   renderRow(data) {
@@ -57,14 +69,16 @@ class PriceListView extends Component {
           renderRow={(data) => this.renderRow(data)}
         />
         <TouchableOpacity onPress={() => this.dismissModal()} style={showEditView ? styles.visible : styles.invisible}>
-          <View style={styles.inputContainer}>
+          <TouchableOpacity style={styles.inputContainer}>
             <TextInput
               style={styles.input}
               onChangeText={(text) => this.setState({text})}
               value={this.state.text}
             />
-            <Text>Išsaugoti</Text>
-          </View>
+            <TouchableOpacity style={styles.save} onPress={() => this.onSave()}>
+              <Text style={styles.saveText}>Išsaugoti</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
         </TouchableOpacity>
       </View>
     );
@@ -120,7 +134,8 @@ const styles = StyleSheet.create({
   inputContainer: {
     paddingVertical: 15,
     paddingHorizontal: 20,
-    backgroundColor: '#efeff4',
+    width: '80%',
+    backgroundColor: '#c8c7cc',
     borderRadius: 6,
     marginBottom: 100
   },
@@ -128,10 +143,28 @@ const styles = StyleSheet.create({
   input: {
     lineHeight: 35,
     height: 35,
-    width: 100,
+    width: '100%',
+    marginBottom: 20,
+    marginTop: 10,
     fontSize: 17,
-    borderColor: '#6d6d72',
-    borderWidth: 1
+    borderColor: '#efeff4',
+    backgroundColor: '#efeff4',
+    borderWidth: 1,
+    borderRadius: 6,
+    textAlign: 'center'
+  },
+
+  save: {
+    backgroundColor: '#68a0cf',
+    borderRadius: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    alignSelf: 'center'
+  },
+
+  saveText: {
+    color: '#efeff4',
+    fontWeight: '700'
   }
 });
 
