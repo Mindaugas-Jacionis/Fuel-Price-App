@@ -35,7 +35,7 @@ export default function App() {
       const data = this.state.data[route.id];
 
       return (
-        <PriceListView data={data} />
+        <PriceListView tab={route.id} data={data} />
       );
     };
 

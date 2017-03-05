@@ -1,12 +1,16 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Text, ListView, Image, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Text, ListView, Image, TouchableOpacity, TextInput } from 'react-native';
 
 class PriceListView extends Component {
   constructor(props) {
     super(props);
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
-      dataSource: ds.cloneWithRows([])
+      dataSource: ds.cloneWithRows([]),
+      showEditView: false,
+      tab: this.props.tab,
+      id: null,
+      text: null
     };
   }
 
@@ -15,8 +19,20 @@ class PriceListView extends Component {
     this.setState({ dataSource: this.state.dataSource.cloneWithRows(data) });
   }
 
-  onPress(data) {
-    alert('I will change info of id: ' + data.id);
+  showModal(data) {
+    this.setState({
+      id: data.id,
+      showEditView: true,
+      text: data.price
+    });
+  }
+
+  dismissModal() {
+    this.setState({
+      id: null,
+      showEditView: false,
+      text: null
+    });
   }
 
   renderRow(data) {
@@ -24,7 +40,7 @@ class PriceListView extends Component {
     const logoUrl = `../../assets/logos/${logo}`;
 
     return (
-      <TouchableOpacity style={styles.row} onPress={() => this.onPress(data)}>
+      <TouchableOpacity style={styles.row} onPress={() => this.showModal(data)}>
         <Image style={styles.logo} source={{uri: logo}}/>
         <Text style={styles.price}>{price}</Text>
       </TouchableOpacity>
@@ -32,18 +48,34 @@ class PriceListView extends Component {
   }
 
   render() {
-    const { dataSource } = this.state;
+    const { dataSource, showEditView } = this.state;
 
     return (
-      <ListView
-        dataSource={dataSource}
-        renderRow={(data) => this.renderRow(data)}
-      />
+      <View style={styles.container}>
+        <ListView
+          dataSource={dataSource}
+          renderRow={(data) => this.renderRow(data)}
+        />
+        <TouchableOpacity onPress={() => this.dismissModal()} style={showEditView ? styles.visible : styles.invisible}>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              onChangeText={(text) => this.setState({text})}
+              value={this.state.text}
+            />
+            <Text>Išsaugoti</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1
+  },
+
   row: {
     flex: 1,
     flexDirection: 'row',
@@ -66,6 +98,40 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: 'red',
     textAlign: 'right'
+  },
+
+  invisible: {
+    height: 0,
+    width: 0,
+    overflow: 'hidden'
+  },
+
+  visible: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+
+  inputContainer: {
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    backgroundColor: '#efeff4',
+    borderRadius: 6,
+    marginBottom: 100
+  },
+
+  input: {
+    lineHeight: 35,
+    height: 35,
+    width: 100,
+    fontSize: 17,
+    borderColor: '#6d6d72',
+    borderWidth: 1
   }
 });
 
