@@ -23,26 +23,11 @@ export default function App() {
       }
     }
 
-    onSave(tab, id, price) {
-      const { data } = this.state;
-      let newData = data;
-      newData[tab].map((val) => {
-        let returnValue = val;
-        console.log(returnValue, 'aaaaa  bbbbbb');
-        if (id == val.id) {
-          console.log('jajajaj');
-          returnValue.price = price;
-        }
-
-        return returnValue;
-      });
-
-      console.log('Main save', tab, id, price, newData);
-      this.setState({ data: newData });
-    }
-
     handleChangeTab(index) {
-      this.setState({ index: index });
+      let newData = this.state.tabViewData;
+      newData.index = index;
+
+      this.setState({ tabViewData: newData });
     };
 
     renderHeader(props) {
@@ -50,10 +35,8 @@ export default function App() {
     };
 
     renderScene({ route }) {
-      const data = this.state.data[route.id];
-
       return (
-        <PriceListView tab={route.id} data={data} onSave={(tab, id, price) => this.onSave(tab, id, price)} />
+        <PriceListView tab={route.id} />
       );
     };
 

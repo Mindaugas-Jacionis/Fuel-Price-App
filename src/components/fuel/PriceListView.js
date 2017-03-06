@@ -1,28 +1,19 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Text, ListView, Image, TouchableOpacity, TextInput } from 'react-native';
+import { View, StyleSheet, Text, ListView, Image, TouchableOpacity, TextInput, Keyboard } from 'react-native';
+import { isApple, DATA } from '../../utils/Constants';
 
 class PriceListView extends Component {
   constructor(props) {
     super(props);
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
+      data: DATA[this.props.tab],
       dataSource: ds.cloneWithRows([]),
       showEditView: false,
       tab: this.props.tab,
       id: null,
       text: null
     };
-  }
-
-  componentWillMount() {
-    const { data } = this.props;
-    this.setState({ dataSource: this.state.dataSource.cloneWithRows(data) });
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (this.props !== nextProps) {
-      this.setState({ dataSource: this.state.dataSource.cloneWithRows(nextProps.data) });
-    }
   }
 
   showModal(data) {
@@ -34,6 +25,7 @@ class PriceListView extends Component {
   }
 
   dismissModal() {
+    Keyboard.dismiss();
     this.setState({
       id: null,
       showEditView: false,
@@ -42,8 +34,20 @@ class PriceListView extends Component {
   }
 
   onSave() {
-    const { text, tab, id } = this.state;
-    this.props.onSave(tab, id, text);
+    const { text, id } = this.state;
+
+    const { data } = this.state;
+    let newData = data;
+    newData.map((val) => {
+      let returnValue = val;
+      if (id == val.id) {
+        returnValue.price = Number(text);
+      }
+
+      return returnValue;
+    });
+
+    this.setState({ data: newData });
     this.dismissModal();
   }
 
@@ -60,12 +64,12 @@ class PriceListView extends Component {
   }
 
   render() {
-    const { dataSource, showEditView } = this.state;
+    const { dataSource, showEditView, data } = this.state;
 
     return (
       <View style={styles.container}>
         <ListView
-          dataSource={dataSource}
+          dataSource={dataSource.cloneWithRows(data)}
           renderRow={(data) => this.renderRow(data)}
         />
         <TouchableOpacity onPress={() => this.dismissModal()} style={showEditView ? styles.visible : styles.invisible}>
@@ -74,6 +78,7 @@ class PriceListView extends Component {
               style={styles.input}
               onChangeText={(text) => this.setState({text})}
               value={this.state.text}
+              underlineColorAndroid={'transparent'}
             />
             <TouchableOpacity style={styles.save} onPress={() => this.onSave()}>
               <Text style={styles.saveText}>Išsaugoti</Text>
@@ -136,12 +141,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     width: '80%',
     backgroundColor: '#c8c7cc',
-    borderRadius: 6,
-    marginBottom: 100
+    borderRadius: 6
   },
 
   input: {
-    lineHeight: 35,
+    lineHeight: isApple ? 35 : 28,
     height: 35,
     width: '100%',
     marginBottom: 20,
