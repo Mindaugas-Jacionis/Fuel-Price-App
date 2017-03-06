@@ -41,7 +41,7 @@ class PriceListView extends Component {
     newData.map((val) => {
       let returnValue = val;
       if (id == val.id) {
-        returnValue.price = Number(text);
+        returnValue.price = Number(text.replace(',', '.'));
       }
 
       return returnValue;
@@ -58,7 +58,7 @@ class PriceListView extends Component {
     return (
       <TouchableOpacity style={styles.row} onPress={() => this.showModal(data)}>
         <Image style={styles.logo} source={{uri: logo}}/>
-        <Text style={styles.price}>{price}</Text>
+        <Text style={styles.price}>{String(price.toFixed(2))}</Text>
       </TouchableOpacity>
     );
   }
@@ -79,6 +79,8 @@ class PriceListView extends Component {
               onChangeText={(text) => this.setState({text})}
               value={this.state.text}
               underlineColorAndroid={'transparent'}
+              keyboardType={'numeric'}
+              onSubmitEditing={() => this.onSave()}
             />
             <TouchableOpacity style={styles.save} onPress={() => this.onSave()}>
               <Text style={styles.saveText}>Išsaugoti</Text>
@@ -145,8 +147,10 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    lineHeight: isApple ? 35 : 28,
-    height: 35,
+    lineHeight: isApple ? 35 : 20,
+    padding: 0,
+    margin: 0,
+    height: 40,
     width: '100%',
     marginBottom: 20,
     marginTop: 10,
